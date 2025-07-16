@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Savage Sign In</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Orbitron untuk header -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <!-- Poppins untuk form -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Plus Jakarta Sans untuk nav -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        background: #111;
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        font-family: 'Poppins', sans-serif;
+      }
+      nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 40px;
+        border-radius: 12px;
+        padding: 0 10px;
+        margin: 20px auto;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      nav a {
+        position: relative;
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 11px;
+        padding: 5px 0;
+        transition: color 0.5s ease, transform 0.5s ease;
+      }
+      nav a::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        left: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, #ffffff, #fffbfb);
+        transition: width 0.4s ease;
+        box-shadow: 0 0 5px #fff5f5, 0 0 10px #000000;
+        border-radius: 4px;
+      }
+      nav a:hover::after {
+        width: 100%;
+      }
+      nav a:hover {
+        color: #ffffff;
+        transform: scale(1.03) translateY(-2px);
+      }
+      h1 {
+        margin-bottom: 30px;
+        font-family: 'Orbitron', sans-serif;
+      }
+      .form-container {
+        background: rgba(49, 49, 49, 0.6);
+        padding: 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 0 20px rgb(0, 255, 242);
+        border: 1px solid #4d4d4d;
+      }
+      label {
+        display: block;
+        text-align: left;
+        width: 80%;
+        max-width: 300px;
+        margin: 12px auto 4px auto;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: #c5c5c5;
+      }
+      input {
+        width: 80%;
+        max-width: 300px;
+        padding: 12px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+      }
+      button {
+        width: auto;
+        padding: 10px 24px;
+        margin: 8px 0;
+        background: #313131;
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+      }      
+      button:hover {
+        background: #4d4d4d;
+        transform: scale(1.05);
+      }
+      #savage-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 9999;
+      }
+      #savage-modal h2 {
+        font-size: 14px;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(90deg, #313131, #313131);
+        border-radius: 10px;
+        box-shadow: 0 0 20px #313131;
+        animation: pulse 1.5s infinite;
+        font-family: 'Poppins', sans-serif;
+      }
+      #savage-modal button {
+        margin-top: 20px;
+        background: #313131;
+        box-shadow: 0 0 10px #313131;
+        padding: 8px 20px;
+        border-radius: 6px;
+        color: white;
+        border: none;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+      }
+      #savage-modal button:hover {
+        background: #585858;
+        transform: scale(1.05);
+      }
+      @keyframes pulse {
+        0% { box-shadow: 0 0 10px #c5c5c5; }
+        50% { box-shadow: 0 0 30px #c5c5c5; }
+        100% { box-shadow: 0 0 10px #c5c5c5; }
+      }
+      /* Spinner */
+      .spinner {
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-left-color: #ffffff;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        margin-right: 8px;
+        animation: spin 1s linear infinite;
+        vertical-align: middle;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @media (max-width: 500px) {
+        button {
+          font-size: 13px;
+          padding: 8px 18px;
+        }
+        input {
+          font-size: 14px;
+        }
+      }
+    </style>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBjVfygi6OpMO9mg_SfVFpaB_MH45pOIfs",
+        authDomain: "nerdix-web.firebaseapp.com",
+        projectId: "nerdix-web",
+        storageBucket: "nerdix-web.appspot.com",
+        messagingSenderId: "442990754764",
+        appId: "1:442990754764:web:cdc5f1fe88716711fc7b69",
+        measurementId: "G-S6JSQ7FVMT"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      function showModal(message) {
+        document.getElementById("modal-message").innerText = message;
+        const modal = document.getElementById("savage-modal");
+        modal.style.display = "flex";
+      }
+
+      window.closeModal = function() {
+        document.getElementById("savage-modal").style.display = "none";
+      };
+
+      window.signIn = () => {
+        const btn = document.querySelector(".form-container button");
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Launching...';
+
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+
+        signInWithEmailAndPassword(auth, email, pass)
+          .then(() => {
+            btn.disabled = false;
+            btn.innerHTML = 'Launch Mission!';
+            showModal("🚀 Mission launched successfully!");
+          })
+          .catch(e => {
+            btn.disabled = false;
+            btn.innerHTML = 'Launch Mission!';
+            showModal("Launch failed: " + e.message + " (Pastikan kamu sudah terdaftar!)");
+          });
+      };
+    </script>
+  </head>
+  <body>
+<nav>
+  <a href="https://foolish-clarity-358763.framer.app/">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/>
+    </svg>
+  </a>
+</nav>
+    <h1>Launch Station</h1>
+    <div class="form-container">
+      <label for="email">Email:</label>
+      <input id="email" type="email" placeholder="your@email.com" /><br>
+      <label for="password">Password:</label>
+      <input id="password" type="password" placeholder="your password" /><br>
+      <button onclick="signIn()">Launch Mission!</button>
+    </div>
+
+    <div id="savage-modal">
+      <h2 id="modal-message"></h2>
+      <button onclick="closeModal()">End Mission!</button>
+    </div>
+  </body>
+</html>
